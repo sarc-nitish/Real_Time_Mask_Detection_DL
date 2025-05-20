@@ -1,0 +1,45 @@
+
+<html>
+<head>
+    <title>Realtime Mask Detection</title>
+</head>
+<body>
+    <h3>Hi I'm Nitish </h3>
+    <h2>Real time Mask Detection</h2>
+    <video id="video" width="320" height="240" autoplay></video>
+    <canvas id="canvas" width="128" height="128" style="display:none;"></canvas>
+    <p id="result">Prediction will appear here</p>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const resultP = document.getElementById('result');
+        const ctx = canvas.getContext('2d');
+
+        // Start webcam
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => { video.srcObject = stream; })
+            .catch(err => { alert('Camera access denied'); });
+
+        // Every 1 second capture frame and send to backend
+        setInterval(() => {
+            ctx.drawImage(video, 0, 0, 128, 128);
+            const dataURL = canvas.toDataURL('image/jpeg');
+            
+            fetch('/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: dataURL })
+            })
+            .then(response => response.json())
+            .then(data => {
+                resultP.innerText = `${data.label} (${(data.confidence*100).toFixed(2)}%)`;
+            })
+            .catch(err => {
+                resultP.innerText = 'Error: ' + err;
+            });
+        }, 1000);
+    </script>
+</body>
+</html>
+
