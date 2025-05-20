@@ -9,7 +9,6 @@ from tensorflow.keras.models import load_model
 
 app = FastAPI()
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 model = load_model("mask_img_analyzer.h5")
